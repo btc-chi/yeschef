@@ -66,8 +66,9 @@ Return only the JSON object, no additional text.`;
     let recipeData;
     try {
       recipeData = JSON.parse(content);
-    } catch {
+    } catch (parseError) {
       console.error('Failed to parse OpenAI response as JSON:', content);
+      console.error('Parse error:', parseError);
       throw new Error('Invalid JSON response from AI');
     }
 
