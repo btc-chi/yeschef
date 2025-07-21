@@ -174,9 +174,9 @@ export const useMealPlannerStore = create<MealPlannerState>((set, get) => ({
   setCurrentWeekOffset: (offset) => set({ currentWeekOffset: offset }),
   
   getCurrentWeekMealPlan: () => {
-    const state = get();
-    const weekKey = getWeekKey(state.currentWeekOffset);
-    return state.mealPlans[weekKey] || createEmptyWeekPlan();
+    const { mealPlans, currentWeekOffset } = get();
+    const weekKey = getWeekKey(currentWeekOffset);
+    return mealPlans[weekKey] || createEmptyWeekPlan();
   },
   
   addMealToPlan: (day, mealType, recipe) => set((state) => {
@@ -273,7 +273,7 @@ export const useMealPlannerStore = create<MealPlannerState>((set, get) => ({
   
   setDraggedMealSource: (source) => set({ draggedMealSource: source }),
   
-  clearMealPlan: () => set((state) => {
+  clearMealPlan: () => set(() => {
     const updatedMealPlans = {};
     saveMealPlans(updatedMealPlans);
     return { mealPlans: updatedMealPlans };

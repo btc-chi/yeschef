@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { testOpenAIConnection } from '@/lib/openai';
 
 export async function GET() {
@@ -9,11 +9,11 @@ export async function GET() {
       status: result.success ? 'success' : 'error',
       data: result
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({
       status: 'error',
       message: 'Failed to test OpenAI connection',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

@@ -21,7 +21,6 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
   const { 
     availableRecipes, 
     customRecipes,
-    rotationRecipes,
     setAvailableRecipes, 
     setDraggedRecipe,
     isGenerating,
@@ -44,7 +43,7 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
       console.log(`Resetting filter from "${activeFilter}" to "all" to show new recipes`);
       setActiveFilter('all');
     }
-  }, [availableRecipes.length]); // Trigger when recipe count changes
+  }, [availableRecipes.length, activeFilter]); // Trigger when recipe count changes
 
   useEffect(() => {
     // Combine all recipe sources
@@ -77,7 +76,7 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
     
     console.log(`Loaded ${sortedRecipes.length} unique recipes from ${allRecipes.length} total`);
     setAvailableRecipes(sortedRecipes);
-  }, [customRecipes]);
+  }, [customRecipes, setAvailableRecipes]);
 
   const handleDragStart = (recipe: Recipe) => {
     setDraggedRecipe(recipe);
@@ -176,14 +175,6 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
       {/* Filter Pills */}
       <div className="flex gap-2 mb-6 justify-center">
         {FILTER_CATEGORIES.map(filter => {
-          const filterCount = availableRecipes.filter(recipe => {
-            if (filter.id === 'all') return true;
-            if (filter.id === 'quick') return recipe.prepTime.includes('15') || recipe.prepTime.includes('10');
-            if (filter.id === 'healthy') return recipe.calories < 400;
-            if (filter.id === 'rotation') return isInRotation(recipe.id);
-            return true;
-          }).length;
-
           return (
             <button
               key={filter.id}

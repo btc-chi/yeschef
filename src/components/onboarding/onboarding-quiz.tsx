@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { UserPreferences } from '@/lib/openai';
 
 interface OnboardingStep {
@@ -153,7 +153,7 @@ export default function OnboardingQuiz({ onComplete, onSkip }: OnboardingQuizPro
     }
   };
 
-  const updatePreference = (field: keyof UserPreferences, value: any) => {
+  const updatePreference = (field: keyof UserPreferences, value: unknown) => {
     setPreferences(prev => ({
       ...prev,
       [field]: value

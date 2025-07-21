@@ -1,7 +1,7 @@
 "use client";
 
 import { useMealPlannerStore } from '@/store/meal-planner';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { groceryPricingService } from '@/services/grocery-pricing';
 
 interface GroceryItem {
@@ -21,24 +21,7 @@ const CATEGORY_ICONS = {
   other: '🛒'
 };
 
-// Common pantry items that users often already have
-const COMMON_PANTRY_ITEMS = [
-  'salt', 'pepper', 'olive oil', 'vegetable oil', 'garlic', 'onion',
-  'butter', 'flour', 'sugar', 'paprika', 'cumin', 'oregano', 'basil',
-  'thyme', 'rosemary', 'parsley', 'bay leaves', 'cinnamon', 'vanilla',
-  'baking powder', 'baking soda', 'vinegar', 'soy sauce', 'honey',
-  'lemon juice', 'lime juice', 'hot sauce', 'mustard', 'ketchup',
-  'mayonnaise', 'worcestershire sauce', 'sesame oil', 'ginger',
-  'turmeric', 'chili powder', 'red pepper flakes', 'black pepper',
-  'garlic powder', 'onion powder', 'italian seasoning', 'dill',
-  'cilantro', 'scallions', 'green onions'
-];
 
-const isCommonPantryItem = (itemName: string): boolean => {
-  return COMMON_PANTRY_ITEMS.some(pantryItem => 
-    itemName.toLowerCase().includes(pantryItem.toLowerCase())
-  );
-};
 
 // This component now uses live pricing data
 
@@ -47,7 +30,7 @@ interface GroceryPanelProps {
 }
 
 export default function GroceryPanel({ isDarkMode = false }: GroceryPanelProps) {
-  const { getCurrentWeekMealPlan, mealPlans, currentWeekOffset } = useMealPlannerStore();
+  const { getCurrentWeekMealPlan } = useMealPlannerStore();
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [alreadyHaveItems, setAlreadyHaveItems] = useState<Set<string>>(new Set());
   const [groceryList, setGroceryList] = useState<GroceryItem[]>([]);
@@ -56,7 +39,7 @@ export default function GroceryPanel({ isDarkMode = false }: GroceryPanelProps) 
   // Get current week meal plan - need to depend on mealPlans changes too
   const mealPlan = useMemo(() => {
     return getCurrentWeekMealPlan();
-  }, [currentWeekOffset, mealPlans]); // Depend on both week offset AND meal plans changing
+  }, [getCurrentWeekMealPlan]); // getCurrentWeekMealPlan already includes offset and meal plans state
 
   const getBalanceScore = (protein: number, veg: number, starch: number) => {
     const total = protein + veg + starch;
@@ -64,7 +47,7 @@ export default function GroceryPanel({ isDarkMode = false }: GroceryPanelProps) 
     
     const proteinRatio = protein / total;
     const vegRatio = veg / total;
-    const starchRatio = starch / total;
+    // const starchRatio = starch / total;
     
     if (vegRatio > 0.4 && proteinRatio > 0.2) return 'Great';
     if (vegRatio > 0.3 && proteinRatio > 0.15) return 'Good';

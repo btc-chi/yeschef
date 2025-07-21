@@ -44,7 +44,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
     onDrop(day, mealType);
   };
 
-  const handlePlacedMealDragStart = (e: React.DragEvent) => {
+  const handlePlacedMealDragStart = () => {
     if (recipe && onPlacedMealDragStart) {
       onPlacedMealDragStart(day, mealType, recipe);
     }

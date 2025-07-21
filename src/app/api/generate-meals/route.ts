@@ -15,13 +15,13 @@ export async function POST(request: NextRequest) {
       status: 'success',
       data: result
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in generate-meals API:', error);
     
     return NextResponse.json({
       status: 'error',
       message: 'Failed to generate meal recommendations',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

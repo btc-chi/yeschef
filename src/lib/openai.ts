@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { Recipe } from '@/store/meal-planner';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -68,7 +69,7 @@ Respond ONLY with valid JSON in this exact format:
 export async function generateMealRecommendations(
   preferences?: UserPreferences,
   requestedMeals: number = 14
-): Promise<any> {
+): Promise<{ recipes: Recipe[] }> {
   try {
     let userContext: string;
     
@@ -173,10 +174,10 @@ export async function testOpenAIConnection() {
       message: completion.choices[0]?.message?.content || 'Connected',
       usage: completion.usage
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: error.message || 'Connection failed',
+      message: (error as Error).message || 'Connection failed',
       error
     };
   }

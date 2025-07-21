@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { UserPreferences } from '@/lib/openai';
-import { getUserPreferences, saveUserPreferences, hasUserPreferences } from '@/lib/user-preferences';
+import { getUserPreferences, saveUserPreferences } from '@/lib/user-preferences';
 import OnboardingQuiz from './onboarding/onboarding-quiz';
 import MealDiscovery from './meal-discovery';
 import MealPlanner from './meal-planner';
 import GroceryPanel from './grocery-panel';
-import APITest from './api-test';
 import { useMealPlannerStore } from '@/store/meal-planner';
 
 export default function AppWrapper() {
@@ -71,7 +70,7 @@ export default function AppWrapper() {
 
       const result = await response.json();
       
-      console.log(`LLM returned ${result.data?.recipes?.length || 0} recipes:`, result.data?.recipes?.map(r => r.name) || []);
+      console.log(`LLM returned ${result.data?.recipes?.length || 0} recipes:`, result.data?.recipes?.map((r: { name: string }) => r.name) || []);
       
       if (result.status === 'success' && result.data.recipes) {
         // Create a smart mix of rotation recipes, custom recipes, and new AI-generated recipes
@@ -92,11 +91,11 @@ export default function AppWrapper() {
         ]);
         
         const newRecipes = result.data.recipes
-          .filter((recipe: any) => {
+          .filter((recipe: { name: string }) => {
             const normalizedName = recipe.name.toLowerCase().trim().replace(/\s+/g, ' ');
             return !existingNames.has(normalizedName);
           })
-          .map((recipe: any, index: number) => ({
+          .map((recipe: { name: string; [key: string]: unknown }, index: number) => ({
             ...recipe,
             id: `ai-${Date.now()}-${index}` // Ensure each AI recipe has a unique ID
           }));
