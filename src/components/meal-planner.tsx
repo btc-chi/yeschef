@@ -169,24 +169,24 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                     </div>
                   </div>
                 ) : (
-                  <h4 
-                    className={`font-medium text-sm leading-tight transition-colors duration-300 ${
-                      recipe.isGoingOut 
-                        ? isDarkMode 
-                          ? 'text-gray-200 cursor-pointer hover:text-gray-300' 
-                          : 'text-gray-900 cursor-pointer hover:text-purple-700'
-                        : isDarkMode ? 'text-gray-200 cursor-pointer hover:text-gray-300' : 'text-gray-900 cursor-pointer hover:text-gray-700'
-                    }`}
-                    onClick={() => onRecipeClick?.(recipe)}
-                  >
-                    {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
-                  </h4>
+                  <div className="flex flex-col h-full">
+                    <h4
+                      className={`font-medium text-sm leading-tight transition-colors duration-300 line-clamp-2 ${
+                        recipe.isGoingOut
+                          ? isDarkMode
+                            ? 'text-gray-200 cursor-pointer hover:text-gray-300'
+                            : 'text-gray-900 cursor-pointer hover:text-purple-700'
+                          : isDarkMode ? 'text-gray-200 cursor-pointer hover:text-gray-300' : 'text-gray-900 cursor-pointer hover:text-gray-700'
+                      }`}
+                      onClick={() => onRecipeClick?.(recipe)}
+                    >
+                      {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
+                    </h4>
+                    <p className={`text-xs mt-auto transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
+                    </p>
+                  </div>
                 )}
-                <p className={`text-xs mt-2 transition-colors duration-300 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
-                </p>
               </div>
             </div>
           </div>
