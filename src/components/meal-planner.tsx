@@ -82,7 +82,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
   return (
     <div
       className={`
-        flex-1 h-[100px] rounded-2xl border-2 transition-all duration-300 overflow-hidden relative
+        flex-1 ${isLocked ? 'h-[100px]' : 'h-[100px]'} rounded-2xl border-2 transition-all duration-300 overflow-hidden relative
         ${isLocked ? 'opacity-75 cursor-not-allowed' : ''}
         ${recipe 
           ? isDarkMode 
@@ -94,20 +94,24 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
         }
         ${isDragOver ? 'border-emerald-400 bg-emerald-50 scale-105 shadow-xl' : ''}
         ${recipe 
-          ? 'hover:shadow-xl cursor-grab active:cursor-grabbing' 
+          ? 'hover:shadow-xl cursor-pointer' 
           : isDarkMode ? 'hover:bg-gray-700/70' : 'hover:bg-gray-100/70'
         }
       `}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => recipe && !recipe.isGoingOut && onRecipeClick?.(recipe)}
+      onClick={() => {
+        if (recipe && onRecipeClick) {
+          onRecipeClick(recipe);
+        }
+      }}
       draggable={!!recipe}
       onDragStart={handlePlacedMealDragStart}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="p-3 h-full flex flex-col justify-center">
+      <div className={`${isLocked ? 'p-2' : 'p-3'} h-full flex flex-col justify-center`}>
         {recipe ? (
           <div className="space-y-1.5">
             {/* Action buttons */}
@@ -142,9 +146,6 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
               </div>
             )}
             <div className="flex items-start gap-2">
-              <span className="text-xl mt-0.5 flex-shrink-0">
-                {recipe.isGoingOut ? '🍽️' : getCuisineIcon(recipe.cuisine)}
-              </span>
               <div className="flex-1 min-w-0">
                 {isEditing && recipe.isGoingOut ? (
                   <div className="space-y-1">
@@ -177,36 +178,23 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                   </div>
                 ) : (
                   <h4 
-                    className={`font-semibold text-sm leading-tight line-clamp-2 transition-colors duration-300 ${
+                    className={`font-medium text-sm leading-tight transition-colors duration-300 ${
                       recipe.isGoingOut 
                         ? isDarkMode 
-                          ? 'text-gray-200 cursor-text hover:text-gray-300' 
-                          : 'text-gray-900 cursor-text hover:text-purple-700'
-                        : isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                          ? 'text-gray-200 cursor-pointer hover:text-gray-300' 
+                          : 'text-gray-900 cursor-pointer hover:text-purple-700'
+                        : isDarkMode ? 'text-gray-200 cursor-pointer hover:text-gray-300' : 'text-gray-900 cursor-pointer hover:text-gray-700'
                     }`}
-                    onClick={recipe.isGoingOut ? handleGoingOutClick : undefined}
+                    onClick={() => onRecipeClick?.(recipe)}
                   >
-                    {recipe.name}
+                    {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
                   </h4>
                 )}
-                <p className={`text-xs mt-1 transition-colors duration-300 ${
+                <p className={`text-xs mt-2 transition-colors duration-300 ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                  {recipe.prepTime} • {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
+                  {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
                 </p>
-                <div className={`text-xs px-2 py-0.5 rounded-full inline-block mt-1 max-w-[100px] transition-all duration-300 ${
-                  recipe.isGoingOut 
-                    ? isDarkMode 
-                      ? 'bg-gray-600/50 text-gray-300' 
-                      : 'bg-purple-100 text-purple-700'
-                    : isDarkMode 
-                      ? 'bg-gray-600/70 text-gray-300'
-                      : 'bg-gray-100 text-gray-600'
-                }`}>
-                  <span className="truncate block">
-                    {recipe.cuisine.length > 12 ? recipe.cuisine.split(/[-\s]/).slice(0, 2).join(' ') : recipe.cuisine}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -232,9 +220,10 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
 
 interface MealPlannerProps {
   isDarkMode?: boolean;
+  isLocked?: boolean;
 }
 
-export default function MealPlanner({ isDarkMode = false }: MealPlannerProps) {
+export default function MealPlanner({ isDarkMode = false, isLocked = false }: MealPlannerProps) {
   const { 
     currentWeekOffset,
     draggedRecipe, 
@@ -311,6 +300,8 @@ export default function MealPlanner({ isDarkMode = false }: MealPlannerProps) {
         lockWeek();
         setIsLockAnimating(false);
         setAnimationType('');
+        // Smooth scroll to top when entering execution mode
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 800);
     }
   };
@@ -360,6 +351,164 @@ export default function MealPlanner({ isDarkMode = false }: MealPlannerProps) {
   };
 
   const weekDate = getWeekDate(currentWeekOffset);
+
+  if (isLocked) {
+    // Stacked, full-screen execution mode
+    return (
+      <div className="w-full max-w-7xl mx-auto transition-all duration-500 px-6">
+        {/* Zen Mode Header */}
+        <div className="flex flex-col items-center mb-12">
+          <h2 className={`text-5xl font-light mb-3 transition-colors duration-300 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Execution Mode</h2>
+          <p className={`text-lg transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Your plan is locked in. Stick to it.</p>
+        </div>
+        
+        {/* Stacked Week Layout */}
+        <div className="space-y-6">
+          {/* Top Row: Monday - Thursday */}
+          <div className="grid grid-cols-4 gap-6">
+            {WEEK_DAYS.slice(0, 4).map((day, index) => {
+              const fullDay = FULL_DAYS[index];
+              return (
+                <div key={day} className="flex-1">
+                  <div className={`p-6 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
+                    <h3 className={`text-lg font-semibold mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{day}</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Lunch</span>
+                        <MealSlot
+                          day={day}
+                          mealType="lunch"
+                          recipe={mealPlan[fullDay]?.lunch}
+                          onDrop={() => {}}
+                          onRecipeClick={handleRecipeClick}
+                          isLocked={true}
+                          isDarkMode={isDarkMode}
+                        />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Dinner</span>
+                        <MealSlot
+                          day={day}
+                          mealType="dinner"
+                          recipe={mealPlan[fullDay]?.dinner}
+                          onDrop={() => {}}
+                          onRecipeClick={handleRecipeClick}
+                          isLocked={true}
+                          isDarkMode={isDarkMode}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Bottom Row: Friday - Sunday + Snacks */}
+          <div className="grid grid-cols-4 gap-6">
+            {WEEK_DAYS.slice(4, 7).map((day, index) => {
+              const fullDay = FULL_DAYS[index + 4];
+              return (
+                <div key={day} className="flex-1">
+                  <div className={`p-6 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
+                    <h3 className={`text-lg font-semibold mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{day}</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Lunch</span>
+                        <MealSlot
+                          day={day}
+                          mealType="lunch"
+                          recipe={mealPlan[fullDay]?.lunch}
+                          onDrop={() => {}}
+                          onRecipeClick={handleRecipeClick}
+                          isLocked={true}
+                          isDarkMode={isDarkMode}
+                        />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Dinner</span>
+                        <MealSlot
+                          day={day}
+                          mealType="dinner"
+                          recipe={mealPlan[fullDay]?.dinner}
+                          onDrop={() => {}}
+                          onRecipeClick={handleRecipeClick}
+                          isLocked={true}
+                          isDarkMode={isDarkMode}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* Snacks Card */}
+            <div className="flex-1">
+              <div className={`p-6 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
+                <h3 className={`text-lg font-semibold mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Snacks</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Healthy</span>
+                    <div className={`flex-1 h-[80px] rounded-2xl border-2 transition-all duration-300 overflow-hidden relative ${isDarkMode ? 'border-dashed border-gray-600 bg-gray-800/50' : 'border-dashed border-gray-200 bg-gray-50/50'}`}>
+                      <div className="p-3 h-full flex flex-col justify-center">
+                        <div className="text-center">
+                          <div className={`text-xs font-medium mb-1 transition-colors duration-300 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                            🥤 Protein Shakes
+                          </div>
+                          <div className={`text-2xl mb-1 transition-colors duration-300 ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}>+</div>
+                          <div className={`text-xs transition-colors duration-300 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Add healthy snacks</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Treats</span>
+                    <div className={`flex-1 h-[80px] rounded-2xl border-2 transition-all duration-300 overflow-hidden relative ${isDarkMode ? 'border-dashed border-gray-600 bg-gray-800/50' : 'border-dashed border-gray-200 bg-gray-50/50'}`}>
+                      <div className="p-3 h-full flex flex-col justify-center">
+                        <div className="text-center">
+                          <div className={`text-xs font-medium mb-1 transition-colors duration-300 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                            🍫 Smart Desserts
+                          </div>
+                          <div className={`text-2xl mb-1 transition-colors duration-300 ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}>+</div>
+                          <div className={`text-xs transition-colors duration-300 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Plan your treats</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Unlock Button */}
+        <div className="text-center mt-12">
+          <button
+            onClick={handleLockToggle}
+            className={`px-8 py-4 rounded-xl transition-all duration-300 ${
+              isDarkMode 
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            }`}
+          >
+            🔓 Unlock & Return to Planning
+          </button>
+        </div>
+
+        {/* Recipe Modal */}
+        {selectedRecipe && (
+          <RecipeModal
+            recipe={selectedRecipe}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onEdit={() => {}} // TODO: Implement edit from meal planner if needed
+            isDarkMode={isDarkMode}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto">
