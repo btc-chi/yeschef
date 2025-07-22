@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMealPlannerStore, Recipe } from '@/store/meal-planner';
 import { getCuisineIcon } from '@/data/mock-recipes';
 import RecipeModal from '@/components/recipe-modal';
@@ -267,6 +267,24 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   const [completedMeals, setCompletedMeals] = useState<Set<string>>(new Set());
   
   const mealPlan = getCurrentWeekMealPlan();
+
+  // Load completed meals from localStorage on component mount
+  useEffect(() => {
+    const savedCompletedMeals = localStorage.getItem('completedMeals');
+    if (savedCompletedMeals) {
+      try {
+        const parsedMeals = JSON.parse(savedCompletedMeals);
+        setCompletedMeals(new Set(parsedMeals));
+      } catch (error) {
+        console.error('Error loading completed meals from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // Save completed meals to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('completedMeals', JSON.stringify(Array.from(completedMeals)));
+  }, [completedMeals]);
 
   const handleDrop = (day: string, mealType: 'lunch' | 'dinner') => {
     if (isWeekLocked) return; // Prevent drops when locked
