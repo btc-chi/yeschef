@@ -182,8 +182,20 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                     >
                       {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
                     </h4>
-                    <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
+                    <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center justify-between`}>
+                      <span>{recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}</span>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Toggle completion status
+                        }}
+                        className={`text-xs transition-colors duration-300 hover:scale-110 ${
+                          isDarkMode ? 'text-gray-500 hover:text-green-400' : 'text-gray-400 hover:text-green-500'
+                        }`}
+                        title="Mark as completed"
+                      >
+                        ✓
+                      </button>
                     </p>
                   </div>
                 )}
@@ -341,7 +353,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   if (isLocked) {
     // Stacked, full-screen execution mode
     return (
-      <div className="w-full max-w-[95rem] mx-auto transition-all duration-500 px-4">
+      <div className="w-full max-w-[98rem] mx-auto transition-all duration-500 px-2">
         {/* Zen Mode Header */}
         <div className="flex flex-col items-center mb-12">
           <h2 className={`text-5xl font-light mb-3 transition-colors duration-300 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Execution Mode</h2>
@@ -351,7 +363,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
         {/* Stacked Week Layout */}
         <div className="space-y-6">
           {/* Top Row: Monday - Thursday */}
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4 gap-0">
             {WEEK_DAYS.slice(0, 4).map((day, index) => {
               const fullDay = FULL_DAYS[index];
               return (
@@ -391,7 +403,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
           </div>
           
           {/* Bottom Row: Friday - Sunday + Snacks */}
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4 gap-0">
             {WEEK_DAYS.slice(4, 7).map((day, index) => {
               const fullDay = FULL_DAYS[index + 4];
               return (
@@ -514,7 +526,13 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
           <div>
             <h2 className={`text-2xl font-light transition-colors duration-300 ${
               isDarkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>This Week</h2>
+            }`}>
+              {currentWeekOffset === 0 ? 'This Week' : 
+               currentWeekOffset === 1 ? 'Next Week' : 
+               currentWeekOffset === -1 ? 'Last Week' : 
+               currentWeekOffset > 1 ? `${currentWeekOffset} Weeks Ahead` : 
+               `${Math.abs(currentWeekOffset)} Weeks Ago`}
+            </h2>
             <p className={`text-sm transition-colors duration-300 ${
               isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>

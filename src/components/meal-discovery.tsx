@@ -32,7 +32,7 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
     rotationRecipes // <-- add this
   } = useMealPlannerStore();
 
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('rotation');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
