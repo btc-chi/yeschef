@@ -10,35 +10,6 @@ interface DashboardProps {
   isDarkMode?: boolean;
 }
 
-const getCuisineIcon = (cuisine: string) => {
-  const icons: Record<string, string> = {
-    'Italian': '🍝',
-    'Asian': '🥢',
-    'Mexican': '🌮',
-    'Mediterranean': '🫒',
-    'Indian': '🍛',
-    'Thai': '🥘',
-    'French': '🥖',
-    'American': '🍔',
-    'Japanese': '🍱',
-    'Korean': '🍜',
-    'Middle Eastern': '🥙',
-    'Greek': '🧀'
-  };
-  return icons[cuisine] || '🍽️';
-};
-
-const getActivityIcon = (activity: string) => {
-  const icons: Record<string, string> = {
-    'Sedentary (desk job)': '🪑',
-    'Light (1-3 days/week)': '🚶',
-    'Moderate (3-5 days/week)': '🏃',
-    'Active (6-7 days/week)': '💪',
-    'Very Active (2x/day)': '🔥'
-  };
-  return icons[activity] || '🏃';
-};
-
 export default function Dashboard({ userPreferences, onPreferencesUpdate, isDarkMode = false, onRecalibrate, onStartMealPlanning }: DashboardProps & { onRecalibrate: () => void; onStartMealPlanning: () => void; }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
 

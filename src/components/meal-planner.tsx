@@ -50,14 +50,6 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
     }
   };
 
-  const handleGoingOutClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (recipe?.isGoingOut) {
-      setIsEditing(true);
-      setEditingName(recipe.restaurantName || '');
-    }
-  };
-
   const handleEditSubmit = () => {
     if (onGoingOutEdit && editingName.trim()) {
       onGoingOutEdit(day, mealType, editingName.trim());
