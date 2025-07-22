@@ -78,6 +78,11 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
     }
   };
 
+  const handleCheckmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the recipe card from being clicked
+    handleToggleCompletion();
+  };
+
 
   return (
     <div
@@ -193,7 +198,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                     <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center justify-between`}>
                       <span>{recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}</span>
                       <button 
-                        onClick={handleToggleCompletion}
+                        onClick={handleCheckmarkClick}
                         className={`text-xs transition-colors duration-300 hover:scale-110 ${
                           isCompleted 
                             ? 'text-green-500' 
@@ -299,8 +304,15 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
 
   const handleLockToggle = () => {
     if (isWeekLocked) {
-      unlockWeek();
+      // Unlocking - animate back to planning mode
+      setIsLockAnimating(true);
+      
+      setTimeout(() => {
+        unlockWeek();
+        setIsLockAnimating(false);
+      }, 600);
     } else {
+      // Locking - animate to execution mode
       setIsLockAnimating(true);
       
       // Start the visual animation immediately
@@ -717,7 +729,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
         <div className="flex items-center justify-center space-x-3">
           <span className={`text-sm font-medium transition-colors ${
             !isWeekLocked 
-              ? 'text-purple-600' 
+              ? 'text-orange-600' 
               : isDarkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>
             ✨ Plan & Edit
@@ -728,11 +740,11 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
             onClick={handleLockToggle}
             disabled={isLockAnimating}
             className={`
-              relative w-16 h-8 rounded-full transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-purple-300
+              relative w-16 h-8 rounded-full transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-orange-300
               ${isWeekLocked 
-                ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-lg' 
+                ? 'bg-gradient-to-r from-orange-400 to-yellow-500 shadow-lg' 
                 : isLockAnimating
-                ? 'bg-gradient-to-r from-emerald-300 to-emerald-400 shadow-lg'
+                ? 'bg-gradient-to-r from-orange-300 to-yellow-400 shadow-lg'
                 : 'bg-gradient-to-r from-gray-300 to-gray-400 hover:from-purple-300 hover:to-pink-300'
               }
             `}
@@ -757,7 +769,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
           
           <span className={`text-sm font-medium transition-colors ${
             isWeekLocked 
-              ? 'text-emerald-600' 
+              ? 'text-orange-600' 
               : isDarkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>
             🔒 Lock It In
