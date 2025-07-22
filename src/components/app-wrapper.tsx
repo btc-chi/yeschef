@@ -17,6 +17,7 @@ export default function AppWrapper() {
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { 
     setAvailableRecipes, 
     setIsGenerating, 
@@ -41,6 +42,17 @@ export default function AppWrapper() {
     }
     setIsLoading(false);
   }, []);
+
+  // Handle transition animation when isWeekLocked changes
+  useEffect(() => {
+    if (showMainApp) {
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 300); // Match the transition duration
+      return () => clearTimeout(timer);
+    }
+  }, [isWeekLocked, showMainApp]);
 
   const handleOnboardingComplete = (preferences: UserPreferences) => {
     saveUserPreferences(preferences);
@@ -223,7 +235,7 @@ export default function AppWrapper() {
     // If the current week is locked, show only the MealPlanner in full width
     if (isWeekLocked) {
       return (
-        <div className={`min-h-screen transition-all duration-300 ${
+        <div className={`min-h-screen transition-all duration-500 ${
           isDarkMode 
             ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900' 
             : 'bg-gradient-to-br from-gray-50 via-white to-blue-50'
@@ -304,7 +316,9 @@ export default function AppWrapper() {
           </div>
 
           {/* Fullscreen Meal Planner */}
-          <main className="max-w-5xl mx-auto px-4 pb-16 transition-all duration-500">
+          <main className={`max-w-5xl mx-auto px-4 pb-16 transition-all duration-500 ${
+            isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+          }`}>
             <MealPlanner isDarkMode={isDarkMode} isLocked={true} />
           </main>
         </div>
@@ -312,7 +326,7 @@ export default function AppWrapper() {
     }
     // Otherwise, show the normal 3-column layout
     return (
-      <div className={`min-h-screen transition-all duration-300 ${
+      <div className={`min-h-screen transition-all duration-500 ${
         isDarkMode 
           ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900' 
           : 'bg-gradient-to-br from-gray-50 via-white to-blue-50'
@@ -331,71 +345,71 @@ export default function AppWrapper() {
             {isDarkMode ? (
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-            </svg>
-          )}
-        </button>
-      </div>
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+              </svg>
+            )}
+          </button>
+        </div>
 
-      {/* Minimal Header with Logo */}
-      <div className="pt-8 pb-4">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-lg">
-              <span className="text-2xl text-white">👨‍🍳</span>
+        {/* Minimal Header with Logo */}
+        <div className="pt-8 pb-4">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-3 mb-2">
+              <div className="p-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-lg">
+                <span className="text-2xl text-white">👨‍🍳</span>
+              </div>
+              <h1 className={`text-4xl font-light bg-gradient-to-r bg-clip-text text-transparent transition-all duration-300 ${
+                isDarkMode 
+                  ? 'from-gray-100 to-gray-300' 
+                  : 'from-gray-800 to-gray-600'
+              }`}>
+                yeschef
+              </h1>
             </div>
-            <h1 className={`text-4xl font-light bg-gradient-to-r bg-clip-text text-transparent transition-all duration-300 ${
-              isDarkMode 
-                ? 'from-gray-100 to-gray-300' 
-                : 'from-gray-800 to-gray-600'
-            }`}>
-              yeschef
-            </h1>
+            <p className={`text-sm font-light transition-all duration-300 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>Your personal meal planning assistant</p>
           </div>
-          <p className={`text-sm font-light transition-all duration-300 ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}>Your personal meal planning assistant</p>
         </div>
-      </div>
 
-      {/* Action Bar */}
-      <div className="text-center mb-8">
-        <div className={`inline-flex items-center gap-4 backdrop-blur-sm rounded-2xl p-2 shadow-sm border transition-all duration-300 ${
-          isDarkMode 
-            ? 'bg-gray-800/80 border-gray-700' 
-            : 'bg-white/80 border-gray-100'
-        }`}>
-          <button 
-            onClick={handlePreferencesClick}
-            className={`px-4 py-2 text-sm transition-colors rounded-xl relative ${
-              isDarkMode 
-                ? 'text-gray-300 hover:text-gray-100 hover:bg-gray-700' 
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-            }`}
-          >
-            Preferences
-            {/* Green checkmark for completed onboarding */}
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">✓</span>
-            </span>
-          </button>
-          <div className={`w-px h-6 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
-          <button 
-            onClick={generateMeals}
-            className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            ✨ Generate Fresh Ideas
-          </button>
+        {/* Action Bar */}
+        <div className="text-center mb-8">
+          <div className={`inline-flex items-center gap-4 backdrop-blur-sm rounded-2xl p-2 shadow-sm border transition-all duration-300 ${
+            isDarkMode 
+              ? 'bg-gray-800/80 border-gray-700' 
+              : 'bg-white/80 border-gray-100'
+          }`}>
+            <button 
+              onClick={handlePreferencesClick}
+              className={`px-4 py-2 text-sm transition-colors rounded-xl relative ${
+                isDarkMode 
+                  ? 'text-gray-300 hover:text-gray-100 hover:bg-gray-700' 
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+            >
+              Preferences
+              {/* Green checkmark for completed onboarding */}
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">✓</span>
+              </span>
+            </button>
+            <div className={`w-px h-6 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+            <button 
+              onClick={generateMeals}
+              className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              ✨ Generate Fresh Ideas
+            </button>
+          </div>
         </div>
-      </div>
-
-
 
         {/* Main Content - Zen Three Column Layout */}
-        <main className="max-w-7xl mx-auto px-8 pb-16">
+        <main className={`max-w-7xl mx-auto px-8 pb-16 transition-all duration-500 ${
+          isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+        }`}>
           <div className="grid grid-cols-12 gap-8">
             {/* Recipe Discovery - Left */}
             <div className="col-span-4">
