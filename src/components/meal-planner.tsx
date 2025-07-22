@@ -105,7 +105,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
     >
       <div className={`${isLocked ? 'p-2' : 'p-3'} h-full flex flex-col justify-center`}>
         {recipe ? (
-          <div className="space-y-1.5">
+          <div className={`space-y-1.5 ${isLocked ? 'h-[110px]' : ''}`}>
             {/* Action buttons */}
             {isHovered && !isEditing && !isLocked && (
               <div className="absolute top-1 right-1 flex gap-1 z-10">
@@ -171,13 +171,14 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                 ) : (
                   <div className="flex flex-col h-full">
                     <h4
-                      className={`font-medium text-sm leading-tight transition-colors duration-300 line-clamp-2 ${
+                      className={`font-medium leading-tight transition-colors duration-300 line-clamp-2 ${
                         recipe.isGoingOut
                           ? isDarkMode
                             ? 'text-gray-200 cursor-pointer hover:text-gray-300'
                             : 'text-gray-900 cursor-pointer hover:text-purple-700'
                           : isDarkMode ? 'text-gray-200 cursor-pointer hover:text-gray-300' : 'text-gray-900 cursor-pointer hover:text-gray-700'
                       }`}
+                      style={{ fontSize: '0.625rem' }}
                       onClick={() => onRecipeClick?.(recipe)}
                     >
                       {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
@@ -456,7 +457,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                   </div>
                   <div className="flex items-center gap-4">
                     <span className={`text-sm font-medium w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Treats</span>
-                    <div className={`flex-1 h-[80px] rounded-2xl border-2 transition-all duration-300 overflow-hidden relative ${isDarkMode ? 'border-dashed border-gray-600 bg-gray-800/50' : 'border-dashed border-gray-200 bg-gray-50/50'}`}>
+                    <div className={`flex-1 h-[100px] rounded-2xl border-2 transition-all duration-300 overflow-hidden relative ${isDarkMode ? 'border-dashed border-gray-600 bg-gray-800/50' : 'border-dashed border-gray-200 bg-gray-50/50'}`}>
                       <div className="p-3 h-full flex flex-col justify-center">
                         <div className="text-center">
                           <div className={`text-xs font-medium mb-1 transition-colors duration-300 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
