@@ -174,8 +174,13 @@ export default function CustomMealModal({ isOpen, onClose, onSave, editingRecipe
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+      {/* Modal background overlay */}
+      <div className="absolute inset-0 bg-gray-900/20 transition-all duration-300"></div>
+      <div className="absolute inset-0 backdrop-blur-sm"></div>
+      
+      {/* Modal content */}
+      <div className="relative bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
           <div className="flex justify-between items-center">
