@@ -349,7 +349,11 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   };
 
   const toggleMealCompletion = (day: string, mealType: 'lunch' | 'dinner') => {
-    const mealKey = `${day}-${mealType}`;
+    // Convert short day name to full day name for consistency
+    const dayIndex = WEEK_DAYS.indexOf(day);
+    const fullDay = FULL_DAYS[dayIndex];
+    const mealKey = `${fullDay}-${mealType}`;
+    
     const newCompletedMeals = new Set(completedMeals);
     
     if (newCompletedMeals.has(mealKey)) {
