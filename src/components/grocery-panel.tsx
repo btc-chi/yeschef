@@ -21,7 +21,26 @@ const CATEGORY_ICONS = {
   other: '🛒'
 };
 
+// Persistence functions for "Have it" items
+const loadAlreadyHaveItems = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const saved = localStorage.getItem('grocery-already-have');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  } catch (error) {
+    console.error('Error loading already have items:', error);
+    return new Set();
+  }
+};
 
+const saveAlreadyHaveItems = (items: Set<string>) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('grocery-already-have', JSON.stringify(Array.from(items)));
+  } catch (error) {
+    console.error('Error saving already have items:', error);
+  }
+};
 
 // This component now uses live pricing data
 
@@ -32,7 +51,7 @@ interface GroceryPanelProps {
 export default function GroceryPanel({ isDarkMode = false }: GroceryPanelProps) {
   const { getCurrentWeekMealPlan } = useMealPlannerStore();
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
-  const [alreadyHaveItems, setAlreadyHaveItems] = useState<Set<string>>(new Set());
+  const [alreadyHaveItems, setAlreadyHaveItems] = useState<Set<string>>(loadAlreadyHaveItems());
   const [groceryList, setGroceryList] = useState<GroceryItem[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   
@@ -194,6 +213,8 @@ export default function GroceryPanel({ isDarkMode = false }: GroceryPanelProps) 
       newAlreadyHave.add(itemName);
     }
     setAlreadyHaveItems(newAlreadyHave);
+    // Save to localStorage
+    saveAlreadyHaveItems(newAlreadyHave);
   };
 
   const groupedItems = groceryList.reduce((acc, item) => {

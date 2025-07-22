@@ -98,6 +98,42 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     type: 'text-input',
     field: 'location',
     required: true
+  },
+  {
+    id: 11,
+    title: "What is your main or primary grocery store?",
+    subtitle: "We'll use this for accurate pricing and availability",
+    type: 'single-select',
+    field: 'preferredGroceryStore',
+    options: ['Jewel-Osco', "Mariano's", 'Whole Foods', 'Trader Joe\'s', 'Aldi', 'Kroger', 'Safeway', 'Walmart', 'Target', 'Local Market'],
+    required: true
+  },
+  {
+    id: 12,
+    title: "How many meals do you want to plan per week?",
+    subtitle: "This helps us create the right amount of recipes",
+    type: 'single-select',
+    field: 'mealsPerWeek',
+    options: ['7 meals', '10 meals', '14 meals', '21 meals'],
+    required: true
+  },
+  {
+    id: 13,
+    title: "How often do you dine out?",
+    subtitle: "We'll include restaurant options in your meal plans",
+    type: 'single-select',
+    field: 'goingOutFrequency',
+    options: ['0-1 times per week', '2-3 times per week', '4-5 times per week', '6+ times per week'],
+    required: true
+  },
+  {
+    id: 14,
+    title: "Any dietary restrictions?",
+    subtitle: "We'll make sure to avoid these ingredients",
+    type: 'multi-select',
+    field: 'dietaryRestrictions',
+    options: ['Gluten-Free', 'Dairy-Free', 'Vegetarian', 'Vegan', 'Keto', 'Paleo', 'Low-Carb', 'Low-Sodium', 'Nut-Free', 'None'],
+    required: false
   }
 ];
 
@@ -124,7 +160,8 @@ export default function OnboardingQuiz({ onComplete, onSkip }: OnboardingQuizPro
     favoriteRestaurants: [],
     location: '',
     mealsPerWeek: 14,
-    goingOutFrequency: 2
+    goingOutFrequency: 2,
+    preferredGroceryStore: ''
   });
   const [animationClass, setAnimationClass] = useState('animate-fade-in');
 
@@ -150,6 +187,18 @@ export default function OnboardingQuiz({ onComplete, onSkip }: OnboardingQuizPro
         setCurrentStep(currentStep - 1);
         setAnimationClass('animate-fade-in');
       }, 200);
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentStep < ONBOARDING_STEPS.length - 1) {
+      setAnimationClass('animate-fade-out');
+      setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+        setAnimationClass('animate-fade-in');
+      }, 200);
+    } else {
+      onComplete(preferences as UserPreferences);
     }
   };
 
@@ -213,7 +262,16 @@ export default function OnboardingQuiz({ onComplete, onSkip }: OnboardingQuizPro
         return (
           <div className="space-y-3 max-w-md">
             {step.options?.map((option) => {
-              const mappedValue = option.toLowerCase().replace(/\s+/g, '_').replace(/[()]/g, '');
+              let mappedValue;
+              if (step.field === 'preferredGroceryStore') {
+                mappedValue = option;
+              } else if (step.field === 'mealsPerWeek') {
+                mappedValue = parseInt(option.split(' ')[0]);
+              } else if (step.field === 'goingOutFrequency') {
+                mappedValue = parseInt(option.split(' ')[0]);
+              } else {
+                mappedValue = option.toLowerCase().replace(/\s+/g, '_').replace(/[()]/g, '');
+              }
               const isSelected = preferences[step.field] === mappedValue;
               return (
                 <button
@@ -365,7 +423,7 @@ export default function OnboardingQuiz({ onComplete, onSkip }: OnboardingQuizPro
           </button>
 
           <button
-            onClick={onSkip}
+            onClick={handleSkip}
             className="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors"
           >
             Skip for now

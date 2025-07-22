@@ -28,7 +28,8 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
     removeFromRotation,
     isInRotation,
     addCustomRecipe,
-    updateCustomRecipe
+    updateCustomRecipe,
+    rotationRecipes // <-- add this
   } = useMealPlannerStore();
 
   const [activeFilter, setActiveFilter] = useState('all');
@@ -44,6 +45,9 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
       setActiveFilter('all');
     }
   }, [availableRecipes.length, activeFilter]); // Trigger when recipe count changes
+
+  // Force re-render when rotationRecipes changes
+  useEffect(() => {}, [rotationRecipes]);
 
   useEffect(() => {
     // Combine all recipe sources
@@ -125,12 +129,32 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
     setIsModalOpen(false); // Close recipe modal
   };
 
+  // Update filteredRecipes to depend on rotationRecipes
   const filteredRecipes = availableRecipes.filter(recipe => {
     if (activeFilter === 'all') return true;
-    if (activeFilter === 'quick') return recipe.prepTime.includes('15') || recipe.prepTime.includes('10');
-    if (activeFilter === 'healthy') return recipe.calories < 400;
-    if (activeFilter === 'rotation') return isInRotation(recipe.id);
+    if (activeFilter === 'quick') {
+      const isQuick = recipe.prepTime.includes('15') || recipe.prepTime.includes('10');
+      console.log(`Recipe "${recipe.name}" (${recipe.prepTime}): ${isQuick ? 'QUICK' : 'NOT QUICK'}`);
+      return isQuick;
+    }
+    if (activeFilter === 'healthy') {
+      const isHealthy = recipe.calories < 400;
+      console.log(`Recipe "${recipe.name}" (${recipe.calories} cal): ${isHealthy ? 'HEALTHY' : 'NOT HEALTHY'}`);
+      return isHealthy;
+    }
+    if (activeFilter === 'rotation') {
+      const inRotation = isInRotation(recipe.id);
+      console.log(`Recipe "${recipe.name}": ${inRotation ? 'IN ROTATION' : 'NOT IN ROTATION'}`);
+      return inRotation;
+    }
     return true;
+  });
+
+  // Filter Going Out Templates based on active filter
+  const filteredGoingOutTemplates = GOING_OUT_TEMPLATES.filter(template => {
+    if (activeFilter === 'all') return true;
+    // Going out templates don't really fit into other categories, so hide them for specific filters
+    return false;
   });
 
   console.log(`MealDiscovery rendering: ${availableRecipes.length} total recipes, ${filteredRecipes.length} after filter "${activeFilter}"`);
@@ -178,7 +202,10 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
           return (
             <button
               key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
+              onClick={() => {
+                console.log(`Filter button clicked: ${filter.id}, current activeFilter: ${activeFilter}`);
+                setActiveFilter(filter.id);
+              }}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
                 activeFilter === filter.id
                   ? isDarkMode 
@@ -198,34 +225,36 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
       {/* Recipe List */}
       <div className="space-y-4">
         {/* Going Out Templates */}
-        <div className="space-y-3">
-          {GOING_OUT_TEMPLATES.map((template) => (
-            <div
-              key={template.id}
-              className={`p-4 rounded-2xl border-2 border-dashed cursor-grab active:cursor-grabbing hover:shadow-md transition-all duration-200 ${
-                isDarkMode 
-                  ? 'bg-gray-800/60 border-gray-600 hover:border-gray-500'
-                  : 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 hover:border-purple-300'
-              }`}
-              draggable={true}
-              onDragStart={() => handleDragStart(template)}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🍽️</span>
-                <div>
-                  <h4 className={`font-medium text-sm transition-colors duration-300 ${
-                    isDarkMode ? 'text-gray-200' : 'text-gray-900'
-                  }`}>
-                    {template.name}
-                  </h4>
-                  <p className={`text-xs transition-colors duration-300 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>Editable placeholder</p>
+        {filteredGoingOutTemplates.length > 0 && (
+          <div className="space-y-3">
+            {filteredGoingOutTemplates.map((template) => (
+              <div
+                key={template.id}
+                className={`p-4 rounded-2xl border-2 border-dashed cursor-grab active:cursor-grabbing hover:shadow-md transition-all duration-200 ${
+                  isDarkMode 
+                    ? 'bg-gray-800/60 border-gray-600 hover:border-gray-500'
+                    : 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 hover:border-purple-300'
+                }`}
+                draggable={true}
+                onDragStart={() => handleDragStart(template)}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🍽️</span>
+                  <div>
+                    <h4 className={`font-medium text-sm transition-colors duration-300 ${
+                      isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                    }`}>
+                      {template.name}
+                    </h4>
+                    <p className={`text-xs transition-colors duration-300 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Editable placeholder</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Regular Recipes */}
         <div className="space-y-3">
@@ -286,7 +315,7 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
       </div>
 
       {/* Empty State */}
-      {filteredRecipes.length === 0 && (
+      {filteredRecipes.length === 0 && filteredGoingOutTemplates.length === 0 && (
         <div className={`text-center py-12 rounded-2xl border transition-all duration-300 ${
           isDarkMode 
             ? 'bg-gray-800/50 border-gray-700'
