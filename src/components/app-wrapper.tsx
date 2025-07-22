@@ -44,18 +44,6 @@ export default function AppWrapper() {
     setShowMainApp(false);
   };
 
-  const handleSkipOnboarding = () => {
-    console.log('Skipping onboarding');
-    setShowOnboarding(false);
-    // Continue with default preferences or empty state
-  };
-
-  const resetOnboarding = () => {
-    setShowOnboarding(true);
-    setShowDashboard(false);
-    setUserPreferences(null);
-  };
-
   const generateMeals = async () => {
     setIsGenerating(true);
     try {
@@ -195,7 +183,6 @@ export default function AppWrapper() {
     return (
       <OnboardingQuiz
         onComplete={handleOnboardingComplete}
-        onSkip={handleSkipOnboarding}
       />
     );
   }

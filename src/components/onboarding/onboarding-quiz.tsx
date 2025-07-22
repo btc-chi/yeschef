@@ -139,10 +139,9 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
 
 interface OnboardingQuizProps {
   onComplete: (preferences: UserPreferences) => void;
-  onSkip: () => void;
 }
 
-export default function OnboardingQuiz({ onComplete, onSkip }: OnboardingQuizProps) {
+export default function OnboardingQuiz({ onComplete }: OnboardingQuizProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [preferences, setPreferences] = useState<Partial<UserPreferences>>({
     likedProteins: [],

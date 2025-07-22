@@ -47,15 +47,10 @@ export default function Dashboard({ userPreferences, onPreferencesUpdate, isDark
     setShowOnboarding(false);
   };
 
-  const handleSkipOnboarding = () => {
-    setShowOnboarding(false);
-  };
-
   if (showOnboarding) {
     return (
       <OnboardingQuiz
         onComplete={handleOnboardingComplete}
-        onSkip={handleSkipOnboarding}
       />
     );
   }
@@ -64,9 +59,6 @@ export default function Dashboard({ userPreferences, onPreferencesUpdate, isDark
   const proteinCount = userPreferences.likedProteins.length;
   const vegetableCount = userPreferences.likedVegetables.length;
   const cuisineCount = userPreferences.cuisinePreferences.length;
-  const calorieDeficit = userPreferences.currentWeight > userPreferences.goalWeight;
-  const weeklyCalorieDeficit = calorieDeficit ? 
-    (userPreferences.currentWeight - userPreferences.goalWeight) * 500 : 0;
 
   return (
     <div className={`min-h-screen transition-all duration-300 pb-24 ${

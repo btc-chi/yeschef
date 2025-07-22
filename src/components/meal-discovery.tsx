@@ -151,7 +151,7 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
   });
 
   // Filter Going Out Templates based on active filter
-  const filteredGoingOutTemplates = GOING_OUT_TEMPLATES.filter(template => {
+  const filteredGoingOutTemplates = GOING_OUT_TEMPLATES.filter(() => {
     if (activeFilter === 'all') return true;
     // Going out templates don't really fit into other categories, so hide them for specific filters
     return false;
