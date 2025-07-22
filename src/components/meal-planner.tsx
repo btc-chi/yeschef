@@ -180,7 +180,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                       }`}
                       onClick={() => onRecipeClick?.(recipe)}
                     >
-                      {recipe.name} {recipe.isGoingOut ? '🍽️' : getCuisineIcon(recipe.cuisine)}
+                      {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
                     </h4>
                     <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
@@ -341,7 +341,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   if (isLocked) {
     // Stacked, full-screen execution mode
     return (
-      <div className="w-full max-w-7xl mx-auto transition-all duration-500 px-6">
+      <div className="w-full max-w-8xl mx-auto transition-all duration-500 px-6">
         {/* Zen Mode Header */}
         <div className="flex flex-col items-center mb-12">
           <h2 className={`text-5xl font-light mb-3 transition-colors duration-300 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Execution Mode</h2>
@@ -351,7 +351,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
         {/* Stacked Week Layout */}
         <div className="space-y-6">
           {/* Top Row: Monday - Thursday */}
-          <div className="grid grid-cols-4 gap-6">
+          <div className="grid grid-cols-4 gap-4">
             {WEEK_DAYS.slice(0, 4).map((day, index) => {
               const fullDay = FULL_DAYS[index];
               return (
@@ -391,7 +391,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
           </div>
           
           {/* Bottom Row: Friday - Sunday + Snacks */}
-          <div className="grid grid-cols-4 gap-6">
+          <div className="grid grid-cols-4 gap-4">
             {WEEK_DAYS.slice(4, 7).map((day, index) => {
               const fullDay = FULL_DAYS[index + 4];
               return (
