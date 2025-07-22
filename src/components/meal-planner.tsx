@@ -195,11 +195,13 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                       <button 
                         onClick={handleToggleCompletion}
                         className={`text-xs transition-colors duration-300 hover:scale-110 ${
-                          isDarkMode ? 'text-gray-500 hover:text-green-400' : 'text-gray-400 hover:text-green-500'
-                        } ${isCompleted ? 'text-green-500' : ''}`}
+                          isCompleted 
+                            ? 'text-green-500' 
+                            : isDarkMode ? 'text-gray-500 hover:text-green-400' : 'text-gray-400 hover:text-green-500'
+                        }`}
                         title="Mark as completed"
                       >
-                        {isCompleted ? '✓' : ''}
+                        ✓
                       </button>
                     </p>
                   </div>
@@ -508,18 +510,51 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
           </div>
         </div>
         
-        {/* Unlock Button */}
+        {/* Unlock Toggle */}
         <div className="text-center mt-12">
-          <button
-            onClick={handleLockToggle}
-            className={`px-8 py-4 rounded-xl transition-all duration-300 ${
-              isDarkMode 
-                ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-            }`}
-          >
-            🔓 Unlock & Return to Planning
-          </button>
+          <div className="flex items-center justify-center space-x-3">
+            <span className={`text-sm font-medium transition-colors ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              🔒 Execution Mode
+            </span>
+            
+            {/* Toggle Switch */}
+            <button
+              onClick={handleLockToggle}
+              disabled={isLockAnimating}
+              className={`
+                relative w-16 h-8 rounded-full transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-orange-300
+                ${isLockAnimating
+                  ? 'bg-gradient-to-r from-orange-300 to-yellow-400 shadow-lg'
+                  : 'bg-gradient-to-r from-orange-400 to-yellow-500 shadow-lg'
+                }
+              `}
+            >
+              {/* Toggle Slider */}
+              <div className={`
+                absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 flex items-center justify-center
+                ${isLockAnimating ? 'translate-x-1' : 'translate-x-8'}
+                ${!isLockAnimating ? 'hover:scale-110' : ''}
+              `}>
+                {isLockAnimating ? (
+                  <span className="text-xs animate-pulse">
+                    🔓
+                  </span>
+                ) : (
+                  <span className="text-xs">🔓</span>
+                )}
+              </div>
+            </button>
+            
+            <span className={`text-sm font-medium transition-colors ${
+              isLockAnimating 
+                ? 'text-orange-600' 
+                : isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              ✨ Plan & Edit
+            </span>
+          </div>
         </div>
 
         {/* Recipe Modal */}
