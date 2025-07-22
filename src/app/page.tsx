@@ -6,7 +6,7 @@ export default function Home() {
   console.log('Home page component rendering');
   
   // Simple test to see if React is working
-  const testMode = true; // Set to false to go back to normal app
+  const testMode = false; // Set to false to go back to normal app
   
   if (testMode) {
     return (
