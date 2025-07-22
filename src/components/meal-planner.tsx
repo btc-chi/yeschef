@@ -180,7 +180,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                       }`}
                       onClick={() => onRecipeClick?.(recipe)}
                     >
-                      {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
+                      {recipe.name} {recipe.isGoingOut ? '🍽️' : getCuisineIcon(recipe.cuisine)}
                     </h4>
                     <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
@@ -240,7 +240,6 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLockAnimating, setIsLockAnimating] = useState(false);
-  const [animationType, setAnimationType] = useState('');
   
   const mealPlan = getCurrentWeekMealPlan();
 
@@ -282,16 +281,11 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
     if (isWeekLocked) {
       unlockWeek();
     } else {
-      // Pick a random creative animation
-      const animations = ['bounce', 'wiggle', 'pulse', 'flip', 'wobble'];
-      const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-      setAnimationType(randomAnimation);
       setIsLockAnimating(true);
       
       setTimeout(() => {
         lockWeek();
         setIsLockAnimating(false);
-        setAnimationType('');
         // Smooth scroll to top when entering execution mode
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 800);
@@ -661,24 +655,12 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
             <div className={`
               absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 flex items-center justify-center
               ${isWeekLocked ? 'translate-x-8' : 'translate-x-1'}
-              ${isLockAnimating && animationType === 'bounce' ? 'animate-bounce' : ''}
-              ${isLockAnimating && animationType === 'pulse' ? 'animate-pulse scale-125' : ''}
-              ${isLockAnimating && animationType === 'wiggle' ? 'animate-ping' : ''}
-              ${isLockAnimating && animationType === 'flip' ? 'animate-spin' : ''}
-              ${isLockAnimating && animationType === 'wobble' ? 'animate-bounce scale-90' : ''}
+              ${isLockAnimating ? 'animate-pulse' : ''}
               ${!isLockAnimating ? 'hover:scale-110' : ''}
             `}>
               {isLockAnimating ? (
-                <span className={`text-xs ${
-                  animationType === 'flip' ? 'animate-spin' : 
-                  animationType === 'wiggle' ? 'animate-pulse' : 
-                  animationType === 'bounce' ? 'animate-bounce' :
-                  animationType === 'wobble' ? 'animate-ping' : 'animate-pulse'
-                }`}>
-                  {animationType === 'flip' ? '🔄' : 
-                   animationType === 'wiggle' ? '⚡' : 
-                   animationType === 'bounce' ? '🎯' : 
-                   animationType === 'wobble' ? '🌟' : '✨'}
+                <span className="text-xs animate-pulse">
+                  🔒
                 </span>
               ) : isWeekLocked ? (
                 <span className="text-xs">🔒</span>
