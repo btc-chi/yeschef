@@ -103,7 +103,7 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={`${isLocked ? 'p-2' : 'p-3'} h-full flex flex-col justify-center`}>
+      <div className={`${isLocked ? 'p-4' : 'p-3'} h-full flex flex-col justify-center`}>
         {recipe ? (
           <div className={`space-y-1.5 ${isLocked ? 'h-[110px]' : ''}`}>
             {/* Action buttons */}
@@ -171,19 +171,18 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                 ) : (
                   <div className="flex flex-col h-full">
                     <h4
-                      className={`font-medium leading-tight transition-colors duration-300 line-clamp-2 ${
+                      className={`font-medium text-sm leading-tight transition-colors duration-300 line-clamp-2 ${
                         recipe.isGoingOut
                           ? isDarkMode
                             ? 'text-gray-200 cursor-pointer hover:text-gray-300'
                             : 'text-gray-900 cursor-pointer hover:text-purple-700'
                           : isDarkMode ? 'text-gray-200 cursor-pointer hover:text-gray-300' : 'text-gray-900 cursor-pointer hover:text-gray-700'
                       }`}
-                      style={{ fontSize: '0.625rem' }}
                       onClick={() => onRecipeClick?.(recipe)}
                     >
                       {recipe.isGoingOut ? '🍽️ ' : `${getCuisineIcon(recipe.cuisine)} `}{recipe.name}
                     </h4>
-                    <p className={`text-xs mt-auto transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}
                     </p>
                   </div>
