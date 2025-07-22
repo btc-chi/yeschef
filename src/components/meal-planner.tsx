@@ -19,11 +19,13 @@ interface MealSlotProps {
   onGoingOutEdit?: (day: string, mealType: 'lunch' | 'dinner', newName: string) => void;
   onRemoveMeal?: (day: string, mealType: 'lunch' | 'dinner') => void;
   onToggleRotation?: (recipe: Recipe) => void;
+  onToggleCompletion?: (day: string, mealType: 'lunch' | 'dinner') => void;
   isInRotation?: boolean;
+  isCompleted?: boolean;
   isDarkMode?: boolean;
 }
 
-function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDragStart, onGoingOutEdit, onRemoveMeal, onToggleRotation, isInRotation, isLocked, isDarkMode = false }: MealSlotProps) {
+function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDragStart, onGoingOutEdit, onRemoveMeal, onToggleRotation, onToggleCompletion, isInRotation, isCompleted, isLocked, isDarkMode = false }: MealSlotProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingName, setEditingName] = useState('');
@@ -67,6 +69,12 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
     e.stopPropagation();
     if (onRemoveMeal) {
       onRemoveMeal(day, mealType);
+    }
+  };
+
+  const handleToggleCompletion = () => {
+    if (onToggleCompletion) {
+      onToggleCompletion(day, mealType);
     }
   };
 
@@ -185,16 +193,13 @@ function MealSlot({ day, mealType, recipe, onDrop, onRecipeClick, onPlacedMealDr
                     <p className={`text-xs mt-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center justify-between`}>
                       <span>{recipe.calories > 0 ? `${recipe.calories} cal` : 'Variable'}</span>
                       <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // TODO: Toggle completion status
-                        }}
+                        onClick={handleToggleCompletion}
                         className={`text-xs transition-colors duration-300 hover:scale-110 ${
                           isDarkMode ? 'text-gray-500 hover:text-green-400' : 'text-gray-400 hover:text-green-500'
-                        }`}
+                        } ${isCompleted ? 'text-green-500' : ''}`}
                         title="Mark as completed"
                       >
-                        ✓
+                        {isCompleted ? '✓' : ''}
                       </button>
                     </p>
                   </div>
@@ -252,6 +257,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLockAnimating, setIsLockAnimating] = useState(false);
+  const [completedMeals, setCompletedMeals] = useState<Set<string>>(new Set());
   
   const mealPlan = getCurrentWeekMealPlan();
 
@@ -295,12 +301,13 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
     } else {
       setIsLockAnimating(true);
       
+      // Start the visual animation immediately
       setTimeout(() => {
         lockWeek();
         setIsLockAnimating(false);
         // Smooth scroll to top when entering execution mode
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 800);
+      }, 600); // Reduced from 800ms for snappier feel
     }
   };
 
@@ -325,6 +332,19 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
     } else {
       addToRotation(recipe);
     }
+  };
+
+  const toggleMealCompletion = (day: string, mealType: 'lunch' | 'dinner') => {
+    const mealKey = `${day}-${mealType}`;
+    const newCompletedMeals = new Set(completedMeals);
+    
+    if (newCompletedMeals.has(mealKey)) {
+      newCompletedMeals.delete(mealKey);
+    } else {
+      newCompletedMeals.add(mealKey);
+    }
+    
+    setCompletedMeals(newCompletedMeals);
   };
 
   const getWeekDate = (offset: number) => {
@@ -353,7 +373,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
   if (isLocked) {
     // Stacked, full-screen execution mode
     return (
-      <div className="w-full max-w-[98rem] mx-auto transition-all duration-500 px-2">
+      <div className="w-full max-w-[99.5rem] mx-auto transition-all duration-500 px-1">
         {/* Zen Mode Header */}
         <div className="flex flex-col items-center mb-12">
           <h2 className={`text-5xl font-light mb-3 transition-colors duration-300 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Execution Mode</h2>
@@ -368,7 +388,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
               const fullDay = FULL_DAYS[index];
               return (
                 <div key={day} className="flex-1">
-                  <div className={`p-6 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
+                  <div className={`p-4 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
                     <h3 className={`text-lg font-semibold mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{day}</h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-4">
@@ -379,6 +399,8 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                           recipe={mealPlan[fullDay]?.lunch}
                           onDrop={() => {}}
                           onRecipeClick={handleRecipeClick}
+                          onToggleCompletion={toggleMealCompletion}
+                          isCompleted={mealPlan[fullDay]?.lunch ? completedMeals.has(`${fullDay}-lunch`) : false}
                           isLocked={true}
                           isDarkMode={isDarkMode}
                         />
@@ -391,6 +413,8 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                           recipe={mealPlan[fullDay]?.dinner}
                           onDrop={() => {}}
                           onRecipeClick={handleRecipeClick}
+                          onToggleCompletion={toggleMealCompletion}
+                          isCompleted={mealPlan[fullDay]?.dinner ? completedMeals.has(`${fullDay}-dinner`) : false}
                           isLocked={true}
                           isDarkMode={isDarkMode}
                         />
@@ -408,7 +432,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
               const fullDay = FULL_DAYS[index + 4];
               return (
                 <div key={day} className="flex-1">
-                  <div className={`p-6 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
+                  <div className={`p-4 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
                     <h3 className={`text-lg font-semibold mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{day}</h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-4">
@@ -419,6 +443,8 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                           recipe={mealPlan[fullDay]?.lunch}
                           onDrop={() => {}}
                           onRecipeClick={handleRecipeClick}
+                          onToggleCompletion={toggleMealCompletion}
+                          isCompleted={mealPlan[fullDay]?.lunch ? completedMeals.has(`${fullDay}-lunch`) : false}
                           isLocked={true}
                           isDarkMode={isDarkMode}
                         />
@@ -431,6 +457,8 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                           recipe={mealPlan[fullDay]?.dinner}
                           onDrop={() => {}}
                           onRecipeClick={handleRecipeClick}
+                          onToggleCompletion={toggleMealCompletion}
+                          isCompleted={mealPlan[fullDay]?.dinner ? completedMeals.has(`${fullDay}-dinner`) : false}
                           isLocked={true}
                           isDarkMode={isDarkMode}
                         />
@@ -443,7 +471,7 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
             
             {/* Snacks Card */}
             <div className="flex-1">
-              <div className={`p-6 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
+              <div className={`p-4 rounded-3xl border transition-all duration-300 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white/80 border-gray-100'}`}> 
                 <h3 className={`text-lg font-semibold mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Snacks</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-4">
@@ -620,7 +648,9 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                   onGoingOutEdit={handleGoingOutEdit}
                   onRemoveMeal={handleRemoveMeal}
                   onToggleRotation={handleToggleRotation}
+                  onToggleCompletion={toggleMealCompletion}
                   isInRotation={mealPlan[fullDay]?.lunch ? isInRotation(mealPlan[fullDay]!.lunch!.id) : false}
+                  isCompleted={mealPlan[fullDay]?.lunch ? completedMeals.has(`${fullDay}-lunch`) : false}
                   isLocked={isWeekLocked}
                   isDarkMode={isDarkMode}
                 />
@@ -634,7 +664,9 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
                   onGoingOutEdit={handleGoingOutEdit}
                   onRemoveMeal={handleRemoveMeal}
                   onToggleRotation={handleToggleRotation}
+                  onToggleCompletion={toggleMealCompletion}
                   isInRotation={mealPlan[fullDay]?.dinner ? isInRotation(mealPlan[fullDay]!.dinner!.id) : false}
+                  isCompleted={mealPlan[fullDay]?.dinner ? completedMeals.has(`${fullDay}-dinner`) : false}
                   isLocked={isWeekLocked}
                   isDarkMode={isDarkMode}
                 />
@@ -664,16 +696,16 @@ export default function MealPlanner({ isDarkMode = false, isLocked = false }: Me
               relative w-16 h-8 rounded-full transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-purple-300
               ${isWeekLocked 
                 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-lg' 
+                : isLockAnimating
+                ? 'bg-gradient-to-r from-emerald-300 to-emerald-400 shadow-lg'
                 : 'bg-gradient-to-r from-gray-300 to-gray-400 hover:from-purple-300 hover:to-pink-300'
               }
-              ${isLockAnimating ? 'animate-pulse' : ''}
             `}
           >
             {/* Toggle Slider */}
             <div className={`
               absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 flex items-center justify-center
-              ${isWeekLocked ? 'translate-x-8' : 'translate-x-1'}
-              ${isLockAnimating ? 'animate-pulse' : ''}
+              ${isWeekLocked || isLockAnimating ? 'translate-x-8' : 'translate-x-1'}
               ${!isLockAnimating ? 'hover:scale-110' : ''}
             `}>
               {isLockAnimating ? (
