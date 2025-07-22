@@ -38,14 +38,6 @@ export default function MealDiscovery({ isDarkMode = false }: MealDiscoveryProps
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
-  // Reset filter to 'all' when new recipes are generated
-  useEffect(() => {
-    if (availableRecipes.length > 0 && activeFilter !== 'all') {
-      console.log(`Resetting filter from "${activeFilter}" to "all" to show new recipes`);
-      setActiveFilter('all');
-    }
-  }, [availableRecipes.length, activeFilter]); // Trigger when recipe count changes
-
   // Force re-render when rotationRecipes changes
   useEffect(() => {}, [rotationRecipes]);
 
