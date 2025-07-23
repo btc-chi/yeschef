@@ -43,7 +43,7 @@ export default function RecipeModal({ recipe, isOpen, onClose, onAddToPlan, onEd
 
   return (
     <div 
-      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-hidden"
       onClick={onClose} // Click outside to close
     >
       {/* Modal background overlay */}
@@ -56,7 +56,7 @@ export default function RecipeModal({ recipe, isOpen, onClose, onAddToPlan, onEd
       
       {/* Modal content */}
       <div 
-        className={`relative rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transition-colors duration-300 ${
+        className={`relative rounded-2xl shadow-xl max-w-2xl w-full h-[90vh] flex flex-col transition-colors duration-300 ${
           isDarkMode ? 'bg-gray-800' : 'bg-white'
         }`}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal content
@@ -150,7 +150,7 @@ export default function RecipeModal({ recipe, isOpen, onClose, onAddToPlan, onEd
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
             {/* Ingredients */}
             <div>
